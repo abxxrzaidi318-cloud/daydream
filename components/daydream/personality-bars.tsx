@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { TRAITS, type TraitKey } from "@/lib/daydream-data"
+import { useDream } from "./dream-provider"
 
 export function PersonalityBars({
   values,
@@ -10,6 +11,9 @@ export function PersonalityBars({
   values: Record<TraitKey, number>
   delay?: number
 }) {
+  const { play } = useDream()
+  const lastIndex = TRAITS.length - 1
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -33,7 +37,7 @@ export function PersonalityBars({
                 <span className="font-display font-semibold text-primary">{v}%</span>
               </div>
               <div
-                className="h-3 w-full overflow-hidden rounded-full bg-muted"
+                className="relative h-3 w-full overflow-hidden rounded-full bg-muted"
                 role="progressbar"
                 aria-valuenow={v}
                 aria-valuemin={0}
@@ -45,6 +49,19 @@ export function PersonalityBars({
                   initial={{ width: 0 }}
                   animate={{ width: `${v}%` }}
                   transition={{ delay: delay + 0.2 + i * 0.15, duration: 0.9, ease: "easeOut" }}
+                  onAnimationComplete={() => {
+                    // a single soft sparkle once the final bar settles
+                    if (i === lastIndex) play("sparkle")
+                  }}
+                />
+                {/* sparkle at the tip when this bar finishes */}
+                <motion.span
+                  className="absolute top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white"
+                  style={{ left: `calc(${v}% - 4px)`, boxShadow: "0 0 8px 2px color-mix(in oklch, var(--primary) 60%, transparent)" }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: [0, 1, 0], scale: [0, 1.4, 0] }}
+                  transition={{ delay: delay + 0.2 + i * 0.15 + 0.9, duration: 0.7 }}
+                  aria-hidden="true"
                 />
               </div>
             </li>

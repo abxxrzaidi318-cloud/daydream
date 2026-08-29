@@ -142,6 +142,24 @@
   }
 }
 
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
 .animate-drift {
   animation: drift linear infinite;
 }
@@ -154,13 +172,27 @@
 .animate-blob {
   animation: blob-shift ease-in-out infinite;
 }
+.animate-spin-slow {
+  animation: spin-slow 70s linear infinite;
+}
+.animate-pulse-soft {
+  animation: pulse-soft 5s ease-in-out infinite;
+}
+
+/* Custom cursor: hide the native pointer only while it's active */
+.dd-cursor-active,
+.dd-cursor-active * {
+  cursor: none !important;
+}
 
 /* Reduced motion: quiet the dream world down */
 @media (prefers-reduced-motion: reduce) {
   .animate-drift,
   .animate-float-soft,
   .animate-twinkle,
-  .animate-blob {
+  .animate-blob,
+  .animate-spin-slow,
+  .animate-pulse-soft {
     animation: none !important;
   }
   *,

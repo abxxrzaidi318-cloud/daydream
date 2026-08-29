@@ -3,15 +3,19 @@
 import { animate, motion, useReducedMotion } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import { scoreSubtitle } from "@/lib/daydream-data"
+import { useDream } from "./dream-provider"
 
 export function Score({ value, delay = 0 }: { value: number; delay?: number }) {
   const [display, setDisplay] = useState(0)
+  const [done, setDone] = useState(false)
   const reduced = useReducedMotion()
+  const { play } = useDream()
   const circumference = 2 * Math.PI * 52
 
   useEffect(() => {
     if (reduced) {
       setDisplay(value)
+      setDone(true)
       return
     }
     const controls = animate(0, value, {
@@ -19,9 +23,13 @@ export function Score({ value, delay = 0 }: { value: number; delay?: number }) {
       delay,
       ease: "easeOut",
       onUpdate: (v) => setDisplay(Math.round(v)),
+      onComplete: () => {
+        setDone(true)
+        play("sparkle") // soft chime when the number lands
+      },
     })
     return () => controls.stop()
-  }, [value, delay, reduced])
+  }, [value, delay, reduced, play])
 
   return (
     <motion.div
@@ -31,7 +39,16 @@ export function Score({ value, delay = 0 }: { value: number; delay?: number }) {
       className="glass mx-auto flex w-full max-w-md flex-col items-center rounded-3xl border border-white/60 p-8 shadow-xl shadow-primary/10"
     >
       <div className="relative h-40 w-40">
-        <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+        {/* soft glow pulse once the count finishes */}
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          initial={false}
+          animate={done ? { opacity: [0, 0.8, 0.35], scale: [0.9, 1.15, 1.05] } : { opacity: 0, scale: 0.9 }}
+          transition={{ duration: 1 }}
+          aria-hidden="true"
+          style={{ background: "radial-gradient(circle, color-mix(in oklch, var(--primary) 45%, transparent) 0%, transparent 68%)" }}
+        />
+        <svg viewBox="0 0 120 120" className="relative h-full w-full -rotate-90">
           <circle cx="60" cy="60" r="52" fill="none" stroke="var(--muted)" strokeWidth="10" />
           <motion.circle
             cx="60"
